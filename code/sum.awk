@@ -4,7 +4,6 @@
 	} else {
 		s += $7
 	}
-	printf("Added %s to %s\n", $7, s) >> "logfile.txt"
 }
 
 END {
