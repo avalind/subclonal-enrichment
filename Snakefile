@@ -1,9 +1,19 @@
+import pandas as pd
+
+
 
 cfg = {
 	"perms": 10000,
 	"genome": "resources/genome.hg19",
 	"awk_script": "code/sum.awk",
+	"indexpath": "uniq.cases.txt"
 }
+
+sample_names = pd.read_table(cfg["indexpath"], header=None, names=["SampleName"])
+
+
+rule process_all:
+	input: expand("plots/{case_id}_plot.pdf", case_id=sample_names["SampleName"])
 	
 
 rule generate_plot:
