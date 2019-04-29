@@ -20,3 +20,5 @@ main <- function(filename) {
     dataset <- na.omit(dataset)
     return(dataset %>% group_by(`Tumor ID`) %>% do(writer(.)))
 }
+
+main(snakemake@input[[1]])
