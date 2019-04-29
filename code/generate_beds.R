@@ -3,8 +3,8 @@ library(readxl)
 
 main <- function(filename) {
     writer <- function(df) {
-        outname_clonal = paste0(unique(df$`Tumor ID`), "_clonal.bed")
-        outname_subclonal = paste0(unique(df$`Tumor ID`), "_subclonal.bed")
+        outname_clonal = paste0("scratch/", unique(df$`Tumor ID`), "_clonal.bed")
+        outname_subclonal = paste0("scratch/", unique(df$`Tumor ID`), "_subclonal.bed")
 
         # First, collect all clonal abberations for this patient
         clonal <- df %>% filter(`Sample ID`=="ALL")
@@ -18,7 +18,7 @@ main <- function(filename) {
     
     dataset <- read_excel(filename, skip=2)
     dataset <- na.omit(dataset)
-    return(dataset %>% group_by(`Tumor ID`) %>% do(writer(.)))
+    return(dataset %>% filter(str_detect(Method, "SNP")) %>% group_by(`Tumor ID`) %>% do(writer(.)))
 }
 
 main(snakemake@input[[1]])

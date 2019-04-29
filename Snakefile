@@ -18,6 +18,7 @@ rule process_all:
 rule fisher:
 	input: expand("fisher/{case_id}.txt", case_id=sample_names["SampleName"])
 
+
 rule fisher_single_case:
 	input:
 		"sorted/{case_id}_clonal.bed",
@@ -55,7 +56,7 @@ rule generate_raw_beds:
 		"data/Suppl_Table_2_Clones.xlsx"
 	output:
 		expand("scratch/{case_id}_{muttype}.bed",
-			case_id=sample_name["SampleName"],
+			case_id=sample_names["SampleName"],
 			muttype=["clonal", "subclonal"])
 	script:
 		"code/generate_beds.R"
@@ -72,14 +73,14 @@ rule generate_plot:
 
 rule process_single_case:
 	input:
-		"scratch/{case_id}_clonal.bed",
-		"scratch/{case_id}_subclonal.bed",
+		"sorted/{case_id}_clonal.bed",
+		"sorted/{case_id}_subclonal.bed",
 	output:
 		"output/{case_id}_true_overlap.txt",
 		"output/{case_id}_null_dist.txt",
 	params:
 		perms = cfg["perms"],
-		genome_file = cfg["genome"],
+		genome_file = cfg["sorted_genome"],
 		awk_src = cfg["awk_script"],
 	shell:
 		"""

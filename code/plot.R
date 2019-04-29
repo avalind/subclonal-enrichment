@@ -12,7 +12,7 @@ main <- function(true_overlap, perm_overlap, figname) {
     subtitle = paste0(enriched_str, ", ", depleted_str)
 
     pdf(figname)
-    hist(perms, breaks=100, main=subtitle)
+    hist(perms, main=subtitle)
     abline(v = true_overlap, col="red")
     dev.off()
 }
