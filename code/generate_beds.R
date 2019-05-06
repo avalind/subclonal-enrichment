@@ -58,5 +58,4 @@ split_by_type <- function(filename) {
     return(dataset %>% filter(str_detect(Method, "SNP")) %>% group_by(`Tumor ID`) %>% do(writer(.)))
 }
 
-
-#split_by_type(snakemake@input[[1]])
+split_by_type(snakemake@input[[1]])

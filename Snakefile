@@ -55,8 +55,9 @@ rule generate_raw_beds:
 	input:
 		"data/Suppl_Table_2_Clones.xlsx"
 	output:
-		expand("scratch/{case_id}_{muttype}.bed",
+		expand("per_type/{case_id}_{segment_state}_{muttype}.bed",
 			case_id=sample_names["SampleName"],
+			segment_state=["loss", "gain"],
 			muttype=["clonal", "subclonal"])
 	script:
 		"code/generate_beds.R"
