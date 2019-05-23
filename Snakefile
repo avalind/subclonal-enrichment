@@ -12,7 +12,7 @@ sample_names = pd.read_table(cfg["indexpath"], header=None, names=["SampleName"]
 
 
 rule process_all:
-	input: expand("plots/{case_id}_plot.pdf", case_id=sample_names["SampleName"])
+	input: expand("plots/{case_id}_{scna_type}_plot.pdf",case_id=sample_names["SampleName"],scna_type=["gain", "loss"])
 
 
 rule fisher:
@@ -34,17 +34,18 @@ rule fisher_single_case:
 	
 rule sort_all:
 	input:
-		expand("sorted/{case_id}_{muttype}.bed",
+		expand("sorted/{case_id}_{scna_type}_{muttype}.bed",
 			case_id = sample_names["SampleName"],
-			muttype = ["clonal", "subclonal"])
+			muttype = ["clonal", "subclonal"],
+			scna_type = ["gain", "loss"])
 
 rule sort_sample:
 	input:
-		"scratch/{case_id}_clonal.bed",
-		"scratch/{case_id}_subclonal.bed",
+		"per_type/{case_id}_{scna_type}_clonal.bed",
+		"per_type/{case_id}_{scna_type}_subclonal.bed",
 	output:
-		"sorted/{case_id}_clonal.bed",
-		"sorted/{case_id}_subclonal.bed"
+		"sorted/{case_id}_{scna_type}_clonal.bed",
+		"sorted/{case_id}_{scna_type}_subclonal.bed"
 	shell:
 		"""
 		sort -k 1,1 -k2,2n {input[0]} > {output[0]}  &&
@@ -64,21 +65,21 @@ rule generate_raw_beds:
 
 rule generate_plot:
 	input:
-		"output/{case_id}_true_overlap.txt",
-		"output/{case_id}_null_dist.txt"
+		"output/{case_id}_{scna_type}.true_overlap.txt",
+		"output/{case_id}_{scna_type}.null_dist.txt"
 	output:
-		"plots/{case_id}_plot.pdf"
+		"plots/{case_id}_{scna_type}_plot.pdf"
 	script:
 		"code/plot.R"
 
 
 rule process_single_case:
 	input:
-		"sorted/{case_id}_clonal.bed",
-		"sorted/{case_id}_subclonal.bed",
+		"sorted/{case_id}_{scna_type}_clonal.bed",
+		"sorted/{case_id}_{scna_type}_subclonal.bed",
 	output:
-		"output/{case_id}_true_overlap.txt",
-		"output/{case_id}_null_dist.txt",
+		"output/{case_id}_{scna_type}.true_overlap.txt",
+		"output/{case_id}_{scna_type}.null_dist.txt",
 	params:
 		perms = cfg["perms"],
 		genome_file = cfg["sorted_genome"],
@@ -87,7 +88,7 @@ rule process_single_case:
 		"""
 		for i in $(seq 1 {params.perms})
 		do
-		bedtools shuffle -i {input[1]} -g {params.genome_file} -maxTries 1000000 \
+		bedtools shuffle -i {input[1]} -g {params.genome_file} -maxTries 1000000 -allowBeyondChromEnd\
 			| bedtools intersect -a - -b {input[0]} -wo \
 			| awk -f {params.awk_src} - >> {output[1]}
 		done;
